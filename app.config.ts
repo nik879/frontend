@@ -1,6 +1,6 @@
-// app.config.ts
 export default defineAppConfig({
-  nuxtIcon: {
-    class: "",
+  ui: {
+    primary: "blue",
+    gray: "secondaryc",
   },
 });

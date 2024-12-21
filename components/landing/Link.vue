@@ -10,7 +10,7 @@ interface Props {
 
 withDefaults(defineProps<Props>(), {
   size: "lg",
-  styleName: "primary",
+  styleName: "primaryc",
 });
 
 const sizes = {
@@ -20,7 +20,7 @@ const sizes = {
 
 const styles = {
   outline: "bg-white border-2 border-black hover:bg-gray-100 text-black",
-  primary: "bg-black text-white hover:bg-gray-800  border-2 border-transparent",
+  primaryc: "bg-primaryc font-bold text-white hover:scale-110 border-2 border-transparent",
   inverted: "bg-white text-black border-2 border-transparent",
   muted: "bg-gray-100 hover:bg-gray-200 border-2 border-transparent",
 };

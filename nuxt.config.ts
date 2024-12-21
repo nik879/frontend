@@ -2,11 +2,19 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
   css: ["~/assets/css/main.css"],
+
   postcss: {
     plugins: {
       tailwindcss: {},
       autoprefixer: {},
     },
   },
-  modules: ["nuxt-icon"],
+
+  nitro: {
+    experimental: {
+      websocket: true,
+    },
+  },
+  modules: ["@nuxt/ui"],
+  compatibilityDate: "2024-12-21",
 });
