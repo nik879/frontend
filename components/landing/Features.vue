@@ -1,65 +1,73 @@
-<script setup>
-const features = [
-  {
-    title: "Bring Your Own Framework",
-    description:
-      "Build your site using Vue, web components, or just plain ol' HTML + JavaScript.",
-    icon: "bx:bxs-briefcase",
-  },
-  {
-    title: "100% Static HTML, No JS",
-    description:
-      "Nuxt renders your entire page to static HTML, removing all JavaScript from your final build by default.",
-    icon: "bx:bxs-window-alt",
-  },
-  {
-    title: "On-Demand Components",
-    description:
-      "Need some JS? Nuxt can automatically hydrate interactive components when they become visible on the page.  ",
-    icon: "bx:bxs-data",
-  },
-  {
-    title: "Broad Integration",
-    description:
-      "Nuxt supports TypeScript, Scoped CSS, CSS Modules, Sass, Tailwind, Markdown, MDX, and any other npm packages.",
-    icon: "bx:bxs-bot",
-  },
-  {
-    title: "SEO Enabled",
-    description:
-      "Automatic sitemaps, RSS feeds, pagination and collections take the pain out of SEO and syndication. It just works!",
-    icon: "bx:bxs-file-find",
-  },
-  {
-    title: "Community",
-    description:
-      "Nuxt is an open source project powered by hundreds of contributors making thousands of individual contributions.",
-    icon: "bx:bxs-user",
-  },
-];
+<script setup lang="ts">
+
+// Helper function to determine the severity icon based on severity level
+const getSeverityIcon = (severity) => {
+  if (severity === 'Hoch') {
+    return 'bx:bxs-error'; // Example icon for high severity
+  } else if (severity === 'Niedrig') {
+    return 'bx:bxs-info-circle'; // Example icon for low severity
+  }
+  return 'bx:bxs-help-circle'; // Default icon if severity is undefined
+};
+
+// Beispiel JSON-Daten
+const jsonData = ref({
+  sicherheits_score: 75,
+  status_zusammenfassung: "Fehlende HTTP-Sicherheitsheader stellen ein erhebliches Risiko dar.",
+  befunde: [
+    {
+      id: "FND001",
+      schwere: "Hoch",
+      beschreibung: "Fehlende HTTP-Sicherheitsheader, einschließlich xFrameOptions, xContentTypeOptions, xXSSProtection, contentSecurityPolicy, referrerPolicy und permissionsPolicy, erhöhen das Risiko von Angriffen.",
+    },
+    {
+      id: "FND002",
+      schwere: "Niedrig",
+      beschreibung: "SMTP-Sicherheit durch die Verwendung von SPF und Outlook-Schutzmaßnahmen ist angemessen.",
+    },
+    {
+      id: "FND003",
+      schwere: "Niedrig",
+      beschreibung: "Der OCSP-Status des SSL-Zertifikats ist gut.",
+    }
+  ]
+});
 </script>
 
 <template>
   <div class="mt-16 md:mt-0">
     <h2 class="text-4xl lg:text-5xl font-bold lg:tracking-tight">
-      Everything you need to start a website
+      Sicherheitsüberprüfung der Website
     </h2>
     <p class="text-lg mt-4 text-slate-600">
-      Nuxt comes batteries included. It takes the best parts of state-of-the-art
-      tools and adds its own innovations.
+      Basierend auf den neuesten Sicherheits-Scans wurden die folgenden Ergebnisse ermittelt:
     </p>
-  </div>
 
-  <div class="grid sm:grid-cols-2 md:grid-cols-3 mt-16 gap-16">
-    <div v-for="item of features" class="flex gap-4 items-start">
-      <div class="mt-1 bg-black rounded-full p-2 w-8 h-8 shrink-0">
-        <Icon class="text-white" :name="item.icon" />
-      </div>
-      <div>
-        <h3 class="font-semibold text-lg">{{ item.title }}</h3>
-        <p class="text-slate-500 mt-2 leading-relaxed">
-          {{ item.description }}
-        </p>
+    <!-- Dynamische Anzeige des Sicherheits-Scores und der Status-Zusammenfassung -->
+    <div class="mt-8">
+      <h3 class="text-2xl font-semibold">Sicherheits-Score: {{ jsonData.sicherheits_score }}</h3>
+      <p class="text-slate-600 mt-2">{{ jsonData.status_zusammenfassung }}</p>
+    </div>
+
+    <!-- Dynamische Anzeige der Findings -->
+    <div class="grid sm:grid-cols-1 md:grid-cols-1 mt-8 gap-8">
+      <div v-for="item in jsonData.befunde" :key="item.id"
+        class="flex gap-4 items-start p-4 border border-gray-200 rounded-lg shadow-sm">
+        <!-- Severity Icon -->
+        <div class="mt-1 bg-black rounded-full p-2 w-8 h-8 shrink-0">
+          <Icon class="text-white" :name="getSeverityIcon(item.schwere)" />
+        </div>
+
+        <!-- Finding details -->
+        <div>
+          <h3 class="font-semibold text-lg">ID: {{ item.id }}</h3>
+          <p class="text-slate-500 mt-2 leading-relaxed">
+            <strong>Schwere:</strong> {{ item.schwere }}
+          </p>
+          <p class="text-slate-500 mt-2 leading-relaxed">
+            <strong>Beschreibung:</strong> {{ item.beschreibung }}
+          </p>
+        </div>
       </div>
     </div>
   </div>
