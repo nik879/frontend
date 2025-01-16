@@ -105,7 +105,6 @@ const getSeverityIcon = (severity) => {
 // Event-Handler für das Scrollen
 const handleScroll = () => {
   const scrollPosition = window.scrollY; // Aktuelle Scroll-Position
-  console.log(scrollPosition)
   const halfPage = document.documentElement.scrollHeight / 3; // Hälfte der gesamten Seite
   showBackToTop.value = scrollPosition > halfPage; // Button nur anzeigen, wenn die Hälfte erreicht ist
 };
@@ -122,18 +121,15 @@ const domainRegex = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z0-9]{2,}
 
 onMounted(() => {
   window.addEventListener("scroll", handleScroll); // Listener fürs Scrollen aktivieren
-  console.log("Hero.vue: Verbindung wird hergestellt...");
   socket = createWebSocket();
 
   // Status: Verbindung geöffnet
   socket.addEventListener("open", () => {
-    console.log("[WebSocket] Verbindung hergestellt");
     isConnected.value = true;
   });
 
   // Nachricht empfangen
   socket.addEventListener("message", async (event) => {
-    console.log("[WebSocket] Nachricht empfangen:", event.data);
     loading.value = false;
     domainInput.value = "";
 
@@ -160,12 +156,9 @@ onMounted(() => {
 
   // Verbindung geschlossen
   socket.addEventListener("close", () => {
-    console.log("[WebSocket] Verbindung geschlossen");
-    isConnected.value = false;
     // Automatisch wieder verbinden
     setTimeout(() => {
       if (!isConnected.value) {
-        console.log("[WebSocket] Versuche, die Verbindung wiederherzustellen...");
         socket = createWebSocket();
       }
     }, 3000);
@@ -193,7 +186,6 @@ const sendDomain = () => {
 
     // Sende Domain über den WebSocket an den Server
     socket.send(JSON.stringify({ domain: domainInput.value }));
-    console.log(`[WebSocket] Nachricht gesendet: { domain: ${domainInput.value} }`);
   } else {
     console.error("Bitte eine Domain eingeben.");
   }
