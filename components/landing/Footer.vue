@@ -9,11 +9,11 @@
       Please keep this backlink on your website if possible.
     -->
       <p class="text-center text-xs text-slate-500 mt-1">
-        Erstellt mit
+        Created with
         <a href="https://web3templates.com" target="_blank" rel="noopener" class="hover:underline">
           web3templates
         </a>
-        und
+        and
         <a href="web-check.xyz" target="_blank" rel="noopener" class="hover:underline">
           Webcheck 🚀
         </a>

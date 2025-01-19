@@ -7,7 +7,7 @@
 
     <div>
       <h1 class="text-5xl lg:text-6xl xl:text-7xl font-bold lg:tracking-tight">
-        X-ray für deine <span class="text-secondaryc">Website.</span>
+        X-ray for your <span class="text-secondaryc">Webpage.</span>
       </h1>
       <!-- Domain input and query button -->
       <div class="mt-10 mr-5">
@@ -23,50 +23,58 @@
 
       <!-- Anzeige des Verbindungsstatus -->
       <div class="mt-10 text-xl">
-        <p v-if="errorMessage" class="text-red-500">Fehler: {{ errorMessage }}</p>
-        <h1 v-if="loading" class="mt-5 text-bold">Der Scan kann bis zu 5min in Anspruch nehmen... ⏲️</h1>
+        <p v-if="errorMessage" class="text-red-500">{{ errorMessage }}</p>
+        <h1 v-if="loading" class="mt-5 text-bold">The scan takes a few minutes... ⏲️</h1>
       </div>
     </div>
   </main>
-  <div v-if="parsedData" ref="resultContainer" class="mt-72">
-    <h1 class="text-4xl lg:text-5xl font-bold lg:tracking-tight text-primaryc">
-      Sicherheitsüberprüfung der Website
+  <div v-if="parsedData && !loading" ref="resultContainer" class="mt-10">
+    <h1 class="text-4xl lg:text-5xl font-bold lg:tracking-tight">
+      Check of <span class="text-secondaryc">{{ parsedData.metadata.domain }}</span>
     </h1>
     <p class="text-xl mt-5">
-      Basierend auf den neuesten Sicherheits-Scans wurden die folgenden Ergebnisse ermittelt:
+      Based on our scan these are the results for your webpage.
     </p>
 
     <!-- Dynamische Anzeige des Sicherheits-Scores und der Status-Zusammenfassung -->
-    <div v-if="parsedData" class="mt-9">
-      <h2 class="text-2xl font-semibold">Sicherheits-Score: <span class="text-3xl text-secondaryc">{{
-        parsedData.sicherheits_score }}</span></h2>
-      <p class="text-slate-601 mt-2">{{ parsedData.status_zusammenfassung }}</p>
+    <div v-if="parsedData.metadata.summary" class="mt-9">
+      <h2 class="text-3xl font-semibold">Security Score: <span class="text-5xl text-secondaryc">{{
+        parsedData.metadata.total_rating }}</span></h2>
     </div>
 
     <!-- Dynamische Anzeige der Findings -->
     <div class="grid sm:grid-cols-2 md:grid-cols-1 mt-8 gap-8"
-      v-if="parsedData?.befunde && parsedData.befunde.length > 0">
-      <div v-for="item in parsedData.befunde" :key="item.id"
+      v-if="parsedData.findings && parsedData.findings.length > 0">
+      <div v-for="item in parsedData.findings" :key="item.category"
         class="flex gap-5 items-start p-4 border border-primaryc rounded-lg shadow-sm">
+
         <!-- Severity Icon -->
         <div class="mt-2 bg-primaryc rounded-full p-2 w-8 h-8 shrink-0">
-          <Icon class="text-white" :name="getSeverityIcon(item.schwere)" />
+          <Icon class="text-white" :name="getSeverityIcon(item.risk_rating)" />
         </div>
 
         <!-- Finding details -->
         <div>
-          <h2 class="font-semibold text-lg">ID: {{ item.id }}</h2>
+          <h2 class="font-semibold text-lg">{{ item.category }}</h2>
           <p class="text-slate-501 mt-2 leading-relaxed">
-            <strong>Schwere:</strong> {{ item.schwere }}
+            <strong>Description:</strong> {{ item.description }}
           </p>
           <p class="text-slate-501 mt-2 leading-relaxed">
-            <strong>Beschreibung:</strong> {{ item.beschreibung }}
+            <strong>Rating:</strong> {{ item.risk_rating }}
+          </p>
+          <p class="text-slate-501 mt-2 leading-relaxed">
+            <strong>Reason:</strong> {{ item.justification }}
+          </p>
+          <p class="text-slate-501 mt-2 leading-relaxed">
+            <strong>Recommendation:</strong> {{ item.recommendation }}
+          </p>
+          <p class="text-slate-501 mt-2 leading-relaxed" v-if="item.data && Object.keys(item.data).length > 0">
+            <strong>Aux:</strong> {{ item.data }}
           </p>
         </div>
       </div>
     </div>
   </div>
-
 
   <!-- Button Back to Top -->
   <div v-if="showBackToTop" class="fixed bottom-10 right-10">
@@ -94,10 +102,16 @@ let socket: WebSocket;
 
 // Helper function to determine the severity icon based on severity level
 const getSeverityIcon = (severity) => {
-  if (severity === 'Hoch') {
-    return 'bx:bxs-error'; // Example icon for high severity
-  } else if (severity === 'Niedrig') {
-    return 'bx:bxs-info-circle'; // Example icon for low severity
+  if (severity === 'Critical') {
+    return 'bx:bx-error-alt'; // Icon for critical severity
+  } else if (severity === 'High') {
+    return 'bx:bx-error'; // Icon for high severity
+  } else if (severity === 'Medium') {
+    return 'bx:bxs-capsule'; // Icon for medium severity
+  } else if (severity === 'Low') {
+    return 'bx:bx-bug'; // Icon for low severity
+  } else if (severity === 'Informational') {
+    return 'bx:bxs-info-circle'; // Icon for informational severity
   }
   return 'bx:bxs-help-circle'; // Default icon if severity is undefined
 };
@@ -117,6 +131,26 @@ const scrollToTop = () => {
 
 // RegEx für die Domain-Validierung
 const domainRegex = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z0-9]{2,})$/i;
+
+// Define the severity order for sorting
+const severityOrder = {
+  Critical: 1,
+  High: 2,
+  Medium: 3,
+  Low: 4,
+  Informational: 5
+};
+
+// Function to sort findings based on severity
+const sortFindingsBySeverity = (findings) => {
+  return findings.sort((a, b) => {
+    const severityA = a.risk_rating;
+    const severityB = b.risk_rating;
+
+    // Compare the severity levels based on the defined order
+    return severityOrder[severityA] - severityOrder[severityB];
+  });
+};
 
 
 onMounted(() => {
@@ -140,12 +174,14 @@ onMounted(() => {
     // Versuche, die empfangene Nachricht als JSON zu parsen
     try {
       parsedData.value = JSON.parse(event.data);
+      parsedData.value.findings = sortFindingsBySeverity(parsedData.value.findings);
+
 
       // Warte, bis das DOM aktualisiert wurde
       await nextTick();
       // Scroll zu dem Container mit den Ergebnissen
       if (resultContainer.value) {
-        resultContainer.value.scrollIntoView({ behavior: "smooth", block: "center" });
+        resultContainer.value.scrollIntoView({ behavior: "smooth", block: "start" });
       }
 
     } catch (error) {
