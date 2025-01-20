@@ -1,5 +1,5 @@
 export const createWebSocket = () => {
-  const socket = new WebSocket("ws://localhost:8765");
+  const socket = new WebSocket("ws://auto:8765");
 
   // Verbindungs-Events
   socket.addEventListener("open", () => {

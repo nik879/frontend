@@ -20,4 +20,4 @@ RUN npm run build
 EXPOSE 3000
 
 # Step 8: Start the Nuxt.js application
-CMD ["npm", "run", "start"]
+CMD ["node", ".output/server/index.mjs"]
