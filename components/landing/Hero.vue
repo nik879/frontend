@@ -113,7 +113,7 @@ const getSeverityIcon = (severity) => {
 // Event-Handler für das Scrollen
 const handleScroll = () => {
   const scrollPosition = window.scrollY; // Aktuelle Scroll-Position
-  console.log(scrollPosition)
+  // console.log(scrollPosition)
   const halfPage = document.documentElement.scrollHeight / 3; // Hälfte der gesamten Seite
   showBackToTop.value = scrollPosition > halfPage; // Button nur anzeigen, wenn die Hälfte erreicht ist
 };
