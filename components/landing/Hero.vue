@@ -39,33 +39,41 @@
     <!-- Dynamische Anzeige des Sicherheits-Scores und der Status-Zusammenfassung -->
     <div v-if="parsedData" class="mt-9">
       <h2 class="text-2xl font-semibold">Sicherheits-Score: <span class="text-3xl text-secondaryc">{{
-        parsedData.sicherheits_score }}</span></h2>
-      <p class="text-slate-601 mt-2">{{ parsedData.status_zusammenfassung }}</p>
+        parsedData.metadata.total_rating }}</span></h2>
+      <p class="text-slate-601 mt-2">{{ parsedData.metadata.summary }}</p>
     </div>
 
     <!-- Dynamische Anzeige der Findings -->
     <div class="grid sm:grid-cols-2 md:grid-cols-1 mt-8 gap-8"
-      v-if="parsedData?.befunde && parsedData.befunde.length > 0">
-      <div v-for="item in parsedData.befunde" :key="item.id"
-        class="flex gap-5 items-start p-4 border border-primaryc rounded-lg shadow-sm">
-        <!-- Severity Icon -->
-        <div class="mt-2 bg-primaryc rounded-full p-2 w-8 h-8 shrink-0">
-          <Icon class="text-white" :name="getSeverityIcon(item.schwere)" />
-        </div>
+          v-if="parsedData?.findings && parsedData.findings.length > 0">
+        <div v-for="(item, index) in parsedData.findings" :key="index"
+          class="flex gap-5 items-start p-4 border border-primaryc rounded-lg shadow-sm">
+          
+          <!-- Severity Icon -->
+          <div class="mt-2 bg-primaryc rounded-full p-2 w-8 h-8 shrink-0">
+            <Icon class="text-white" :name="getSeverityIcon(item.risk_rating)" />
+          </div>
 
-        <!-- Finding details -->
-        <div>
-          <h2 class="font-semibold text-lg">ID: {{ item.id }}</h2>
-          <p class="text-slate-501 mt-2 leading-relaxed">
-            <strong>Schwere:</strong> {{ item.schwere }}
-          </p>
-          <p class="text-slate-501 mt-2 leading-relaxed">
-            <strong>Beschreibung:</strong> {{ item.beschreibung }}
-          </p>
-        </div>
+            <!-- Finding details -->
+          <div>
+              <h2 class="font-semibold text-lg">Category: {{ item.category }}</h2>
+              <p class="text-slate-501 mt-2 leading-relaxed">
+                <strong>Risk Rating:</strong> {{ item.risk_rating }}
+              </p>
+              <p class="text-slate-501 mt-2 leading-relaxed">
+                <strong>Description:</strong> {{ item.description }}
+              </p>
+              <p class="text-slate-501 mt-2 leading-relaxed">
+                <strong>Justification:</strong> {{ item.justification }}
+              </p>
+              <p class="text-slate-501 mt-2 leading-relaxed">
+                <strong>Recommendation:</strong> {{ item.recommendation }}
+              </p>
+          </div>
       </div>
     </div>
   </div>
+
 
 
   <!-- Button Back to Top -->
@@ -144,7 +152,7 @@ onMounted(() => {
     // Versuche, die empfangene Nachricht als JSON zu parsen
     try {
       parsedData.value = JSON.parse(event.data);
-
+      console.log("[WebSocket] Daten geparst:", parsedData.value);
       // Warte, bis das DOM aktualisiert wurde
       await nextTick();
       // Scroll zu dem Container mit den Ergebnissen
